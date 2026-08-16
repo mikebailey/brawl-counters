@@ -17,8 +17,15 @@ WHICH MODES SHIP
 ----------------
 A mode qualifies when at least `--mode-coverage` of all possible brawler pairs
 have `--min-n` battles behind them. That is a data test, not a hand-maintained
-list, so modes appear on their own as collection accumulates. Today Brawl Ball
-and Knockout clear a 0.60 bar; Gem Grab, Hot Zone and Bounty sit just under it.
+list, so modes appear on their own as collection accumulates.
+
+The bar is 0.40 rather than something stricter because the two things the site
+shows need very different amounts of data. Brawler rankings only need per-brawler
+win rates, and every mode down to Bounty has a median of 1,200+ battles per
+brawler -- rock solid. Counters need per-PAIR data, which is roughly a hundred
+times scarcer. At 0.40 the five biggest modes ship; their thinner matchups are
+simply filtered out by the site's minimum-battles control rather than shown as
+if they were trustworthy. Heist (12%) and below stay out entirely.
 
 METHOD
 ------
@@ -292,7 +299,7 @@ def main() -> None:
     p.add_argument("--min-n", type=int, default=30,
                    help="battles needed before a matchup counts as reliable "
                         "(default 30)")
-    p.add_argument("--mode-coverage", type=float, default=0.60,
+    p.add_argument("--mode-coverage", type=float, default=0.40,
                    help="share of pairs a mode must cover to ship its own "
                         "file (default 0.60)")
     a = p.parse_args()
