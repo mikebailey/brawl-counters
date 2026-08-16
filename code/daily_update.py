@@ -7,8 +7,8 @@ Run by a Windows Scheduled Task (see docs/scheduling.md). It has to run on this
 machine rather than a cloud runner because the Brawl Stars API key is locked to
 this machine's IP address, so a GitHub Action could never authenticate.
 
-The push is what makes the site update: GitHub Pages redeploys on any change
-under site/.
+The push is what makes the site update: Cloudflare Pages is connected to the
+repo and redeploys on every push.
 """
 
 from __future__ import annotations
@@ -112,7 +112,7 @@ def main() -> None:
         log("Push FAILED:\n" + (proc.stderr or "").strip())
         raise SystemExit(1)
 
-    log("Pushed. GitHub Pages will redeploy automatically.")
+    log("Pushed. Cloudflare Pages will redeploy automatically.")
     log("Daily update finished")
 
 

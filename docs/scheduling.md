@@ -1,16 +1,16 @@
 # Daily updates
 
 `code/daily_update.py` collects a fresh pass of battles, rescores every
-matchup, and pushes the regenerated JSON. GitHub Pages redeploys on any change
-under `site/`, so the published site follows automatically.
+matchup, and pushes the regenerated JSON. Cloudflare Pages is connected to this
+repo and redeploys on every push, so the published site follows automatically.
 
 ## Why it runs on this machine and not in CI
 
 The Brawl Stars API key is **locked to an IP address**. GitHub Actions runners
 get an arbitrary IP from a large pool, so a workflow could never authenticate,
 and whitelisting that pool is neither possible nor safe. Collection therefore
-has to run here and push the results up. The Action in
-`.github/workflows/pages.yml` only publishes what this machine produces.
+has to run here and push the results up; Cloudflare only publishes what this
+machine produces.
 
 ## The scheduled task
 

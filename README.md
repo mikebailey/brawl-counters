@@ -16,6 +16,30 @@ cd site && python -m http.server 8791     # then open http://127.0.0.1:8791
 The site must be served over HTTP. Opening `site/index.html` directly with
 `file://` fails, because browsers block `fetch` of local files.
 
+## Hosting
+
+Cloudflare Pages, connected directly to this GitHub repo. It rebuilds on every
+push, and the daily job pushes regenerated data, so the live site follows the
+data with no extra step.
+
+| Setting | Value |
+|---|---|
+| Framework preset | None |
+| Build command | *(empty)* |
+| Build output directory | `site` |
+| Root directory | `/` |
+
+There is deliberately no build step: `site/` is plain HTML, CSS and JS plus the
+generated JSON, so what runs locally under `python -m http.server` is byte for
+byte what ships.
+
+GitHub Pages was tried first and removed. Project pages inherit the user site's
+custom domain, which would have published this at `michaelbailey.org/brawl-counters/`
+— an academic domain, not the right home for a game fan site.
+
+`site/_headers` is read by Cloudflare: a short revalidating TTL on `/data/*`
+because it changes daily, plus a couple of standard security headers.
+
 ## How the counter score works
 
 Every stored battle has a winning team and a losing team. For each brawler on

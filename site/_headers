@@ -1,0 +1,11 @@
+# Cloudflare Pages reads this from the build output directory.
+
+# Data is regenerated once a day. A short TTL with revalidation means a
+# returning visitor picks up the new numbers quickly without refetching 1.6 MB
+# of JSON on every navigation.
+/data/*
+  Cache-Control: public, max-age=300, must-revalidate
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
