@@ -1,0 +1,16 @@
+# Normalize line endings to LF in the repo; check out native on each platform.
+# Prevents CRLF/LF churn when working across macOS/Linux and Windows.
+* text=auto eol=lf
+
+# Binary files — don't touch
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.parquet binary
+*.feather binary
+*.RData binary
+*.rds binary
