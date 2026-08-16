@@ -1,0 +1,342 @@
+/* Brawl Stars Counters — theme tokens, then layout, then marks.
+   Colors come from the validated data-viz palette: diverging blue <-> red with
+   a neutral gray midpoint, which passes CVD separation in both modes. */
+
+:root {
+  color-scheme: light;
+  --surface-0: #f4f3f0;      /* page ground */
+  --surface-1: #fcfcfb;      /* cards, chart surface */
+  --surface-2: #eceae5;      /* bar track, inset wells */
+  --border:    #dcd9d2;
+  --text-1:    #0b0b0b;
+  --text-2:    #52514e;
+  --text-3:    #86847d;
+  --pole-bad:  #e34948;      /* opponent wins the matchup */
+  --pole-good: #2a78d6;      /* selected brawler wins the matchup */
+  --neutral:   #f0efec;      /* diverging midpoint: reads as "nothing" */
+  /* Darker steps of the same two hues, for TEXT. The mark colors above are
+     validated for graphics (3:1) but land at 4.30:1 and 3.85:1 as text, under
+     the 4.5:1 body-text bar. These clear it: 5.26:1 and 5.32:1. */
+  --ink-good:  #256abf;
+  --ink-bad:   #c62f2e;
+  --tint-good: rgba(42, 120, 214, .10);
+  --tint-bad:  rgba(227, 73, 72, .10);
+  --focus:     #2a78d6;
+  --radius:    10px;
+  --shadow:    0 1px 2px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+}
+
+/* Dark values are selected for the dark surface, not an automatic flip.
+   Declared under both scopes so the OS setting and the toggle each win. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface-0: #121211;
+    --surface-1: #1a1a19;
+    --surface-2: #262624;
+    --border:    #34342f;
+    --text-1:    #ffffff;
+    --text-2:    #c3c2b7;
+    --text-3:    #8d8b81;
+    --pole-bad:  #e66767;
+    --pole-good: #3987e5;
+    --neutral:   #383835;
+    --ink-good:  #5598e7;
+    --ink-bad:   #e66767;
+    --tint-good: rgba(85, 152, 231, .17);
+    --tint-bad:  rgba(230, 103, 103, .17);
+    --focus:     #3987e5;
+    --shadow:    0 1px 2px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-0: #121211;
+  --surface-1: #1a1a19;
+  --surface-2: #262624;
+  --border:    #34342f;
+  --text-1:    #ffffff;
+  --text-2:    #c3c2b7;
+  --text-3:    #8d8b81;
+  --pole-bad:  #e66767;
+  --pole-good: #3987e5;
+  --neutral:   #383835;
+  --ink-good:  #5598e7;
+  --ink-bad:   #e66767;
+  --tint-good: rgba(85, 152, 231, .17);
+  --tint-bad:  rgba(230, 103, 103, .17);
+  --focus:     #3987e5;
+  --shadow:    0 1px 2px rgba(0,0,0,.4);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--surface-0);
+  color: var(--text-1);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top bar ─────────────────────────────────────────────────────── */
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 18px 24px;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+}
+.topbar h1 { margin: 0; font-size: 19px; letter-spacing: -.01em; }
+.sub { margin: 2px 0 0; color: var(--text-2); font-size: 13px; }
+
+.topbar-actions { display: flex; align-items: center; gap: 14px; flex: none; }
+/* The mode selector changes every number on the page, so it reads as a
+   primary control rather than one more filter tucked into the panel. */
+.ctl-strong {
+  font-size: 13px; color: var(--text-2);
+  display: flex; align-items: center; gap: 7px;
+}
+.ctl-strong select {
+  font: inherit; font-size: 14px; font-weight: 600; padding: 6px 9px;
+  color: var(--text-1); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 8px;
+}
+.ctl-strong select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.is-loading { opacity: .55; transition: opacity .12s; }
+
+.ghost-btn {
+  background: transparent; color: var(--text-2);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 7px 13px; font: inherit; font-size: 13px; cursor: pointer;
+}
+.ghost-btn:hover { color: var(--text-1); border-color: var(--text-3); }
+
+/* ── Top brawlers strip ──────────────────────────────────────────── */
+
+.strip {
+  max-width: 1500px; margin: 20px auto 0; padding: 16px 18px 14px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+/* The strip sits inside the page gutter, matching .layout's 24px padding. */
+@media (min-width: 0px) { .strip { margin-left: 24px; margin-right: 24px; } }
+@media (min-width: 1549px) { .strip { margin-left: auto; margin-right: auto; } }
+
+.strip-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.strip-head h2 { margin: 0; font-size: 15px; }
+
+.strip-list {
+  list-style: none; display: flex; gap: 8px; margin: 12px 0 0; padding: 0 0 4px;
+  overflow-x: auto;
+}
+.strip-item {
+  flex: 0 0 auto; width: 86px;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 9px 6px 8px; border-radius: 9px; border: 1px solid transparent;
+  background: none; font: inherit; color: var(--text-2); cursor: pointer;
+}
+.strip-item:hover { background: var(--surface-2); color: var(--text-1); }
+.strip-item:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.strip-item img, .strip-item .ph {
+  width: 46px; height: 46px; border-radius: 8px; background: var(--surface-2);
+}
+.strip-item .ph {
+  display: grid; place-items: center; font-size: 15px; color: var(--text-3);
+}
+.strip-item .nm {
+  font-size: 11px; line-height: 1.2; max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.strip-item .wr {
+  font-size: 13px; font-variant-numeric: tabular-nums; color: var(--text-1);
+}
+/* One measure, one color: a thin magnitude bar above a 50% baseline. */
+.strip-item .track { width: 100%; height: 5px; }
+.strip-item .bar { border-radius: 0 3px 3px 0; }
+.strip-rank {
+  font-size: 10px; color: var(--text-3); font-variant-numeric: tabular-nums;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────── */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) 1fr;
+  gap: 20px; padding: 20px 24px; align-items: start;
+  max-width: 1500px; margin: 0 auto;
+}
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  .picker { position: static !important; max-height: none !important; }
+}
+
+/* ── Brawler picker ──────────────────────────────────────────────── */
+
+.picker {
+  position: sticky; top: 20px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 12px; max-height: calc(100vh - 60px);
+  display: flex; flex-direction: column; gap: 10px;
+}
+#search {
+  width: 100%; padding: 9px 11px; font: inherit; font-size: 14px;
+  color: var(--text-1); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 8px;
+}
+#search:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+  gap: 6px; overflow-y: auto; padding: 2px;
+}
+.tile {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 2px 5px; border: 1px solid transparent; border-radius: 8px;
+  background: none; cursor: pointer; font: inherit; color: var(--text-2);
+}
+.tile:hover { background: var(--surface-2); color: var(--text-1); }
+.tile[aria-selected="true"] {
+  background: var(--surface-2); border-color: var(--focus); color: var(--text-1);
+}
+.tile:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.tile img, .tile .ph {
+  width: 42px; height: 42px; border-radius: 7px; object-fit: cover;
+  background: var(--surface-2);
+}
+.tile .ph {
+  display: grid; place-items: center;
+  font-size: 15px; font-weight: 600; color: var(--text-3);
+}
+.tile span.nm {
+  font-size: 10px; line-height: 1.2; text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 100%;
+}
+
+/* ── Detail ──────────────────────────────────────────────────────── */
+
+.detail {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 18px 20px 22px; min-height: 400px;
+}
+.selected-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.sel-img { width: 72px; height: 72px; border-radius: 12px; background: var(--surface-2); }
+.sel-meta h2 { margin: 0; font-size: 22px; letter-spacing: -.01em; }
+
+.controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+  padding: 12px 0 14px; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+}
+.ctl { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }
+.ctl select {
+  font: inherit; font-size: 13px; padding: 5px 7px; color: var(--text-1);
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px;
+}
+.ctl-check { cursor: pointer; }
+.swatch {
+  width: 11px; height: 11px; border-radius: 3px;
+  display: inline-block; flex: none;
+}
+.swatch-bad  { background: var(--pole-bad); }
+.swatch-good { background: var(--pole-good); }
+
+/* Explains which score is on screen, so the number is never unlabelled. */
+.metric-note {
+  margin: 0 0 16px; font-size: 12px; color: var(--text-3); max-width: 78ch;
+}
+
+.empty { padding: 60px 0; text-align: center; color: var(--text-3); }
+
+.panels { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+@media (max-width: 1050px) { .panels { grid-template-columns: 1fr; } }
+
+/* The heading is the thing that tells you which direction you are reading, so
+   it gets weight, a tinted plate, and the hue of the bars beneath it. The verb
+   carries the color; the brawler name stays in primary ink so the sentence
+   still reads if color is unavailable. */
+.panel-title {
+  margin: 0 0 4px; display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-radius: 9px;
+  font-size: 17px; letter-spacing: -.01em; line-height: 1.25;
+}
+.panel-title .subj { color: var(--text-1); font-weight: 700; }
+.panel-title .verb { font-weight: 800; }
+.panel-title .swatch { width: 13px; height: 13px; border-radius: 4px; }
+
+.tone-good { background: var(--tint-good); }
+.tone-bad  { background: var(--tint-bad); }
+.tone-good .verb { color: var(--ink-good); }
+.tone-bad  .verb { color: var(--ink-bad); }
+
+.panel-note { margin: 0 0 12px; padding-left: 12px; font-size: 12px; color: var(--text-3); }
+
+.rows { list-style: none; margin: 0; padding: 0; }
+
+/* One matchup row: portrait, name, bar, value. */
+.row {
+  display: grid;
+  grid-template-columns: 30px minmax(66px, 1fr) minmax(80px, 2fr) 46px;
+  align-items: center; gap: 9px;
+  /* 2px of surface between adjacent bars — white does the separating. */
+  padding: 4px 6px; margin-bottom: 2px; border-radius: 7px; cursor: default;
+}
+.row:hover { background: var(--surface-2); }
+.row.thin { opacity: .5; }
+.row img, .row .ph {
+  width: 30px; height: 30px; border-radius: 6px; background: var(--surface-2);
+}
+.row .ph { display: grid; place-items: center; font-size: 11px; color: var(--text-3); }
+.row .nm {
+  font-size: 13px; color: var(--text-1);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Bar: capped thickness, square at the baseline, 4px rounded data-end. */
+.track { background: var(--surface-2); border-radius: 3px; height: 14px; overflow: hidden; }
+.bar { height: 100%; border-radius: 0 4px 4px 0; min-width: 2px; }
+.bar-bad  { background: var(--pole-bad); }
+.bar-good { background: var(--pole-good); }
+
+/* Values wear text tokens, never the series color. */
+.val {
+  font-size: 13px; font-variant-numeric: tabular-nums;
+  text-align: right; color: var(--text-1);
+}
+.row.thin .val::after {
+  content: "·"; margin-left: 3px; color: var(--text-3);
+}
+
+/* ── Table view ──────────────────────────────────────────────────── */
+
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+caption { text-align: left; padding-bottom: 10px; color: var(--text-2); font-size: 13px; }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--border); }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--text-2); font-weight: 600; }
+td { font-variant-numeric: tabular-nums; }
+tr.thin td { color: var(--text-3); }
+
+/* ── Tooltip ─────────────────────────────────────────────────────── */
+
+.tooltip {
+  position: fixed; z-index: 20; pointer-events: none;
+  background: var(--surface-1); color: var(--text-1);
+  border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  padding: 9px 11px; font-size: 12px; line-height: 1.45; max-width: 260px;
+}
+.tooltip b { font-size: 13px; }
+.tooltip .t-row { color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+
+.foot {
+  max-width: 1500px; margin: 0 auto; padding: 6px 24px 40px;
+  color: var(--text-2); font-size: 13px;
+}
+.foot p { margin: 0 0 8px; max-width: 78ch; }
+.caveat { color: var(--text-3); font-size: 12px; }
