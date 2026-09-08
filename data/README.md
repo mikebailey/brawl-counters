@@ -2,7 +2,7 @@
 
 This folder is **gitignored** — contents are not tracked in git.
 
-Data lives on {{MIRROR_SHORT}}, under `data/`.
+Data lives on Google Drive (personal) at `My Drive/Projects/personal/family/brawl-counters/`, under `data/`.
 Populate this folder on a new machine with:
 
 ```bash
